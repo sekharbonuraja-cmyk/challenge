@@ -1,115 +1,173 @@
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bus Tickets Booking</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f7f9fc;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding-top: 50px;
+    }
+    .container {
+      background: #fff;
+      padding: 25px 40px;
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      width: 360px;
+    }
+    h1 {
+      margin-bottom: 25px;
+      color: #333;
+      text-align: center;
+    }
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: bold;
+      color: #555;
+    }
+    select, input[type="date"], input[type="number"] {
+      width: 100%;
+      padding: 8px 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+    button {
+      width: 100%;
+      background-color: #007bff;
+      color: white;
+      font-weight: bold;
+      padding: 12px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .message {
+      margin-top: 20px;
+      padding: 12px;
+      border-radius: 5px;
+      font-weight: bold;
+      display: none;
+    }
+    .success {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    .error {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+  </style>
+</head>
+<body>
 
-body {
-  font-family: 'Segoe UI', sans-serif;
-  line-height: 1.6;
-  background: #f4f4f4;
-  color: #333;
-}
+  <div class="container">
+    <h1>Bus Ticket Booking</h1>
+    <form id="bookingForm">
+      <label for="from">From:</label>
+      <select id="from" required>
+        <option value="">Select departure city</option>
+        <option value="New York">New York</option>
+        <option value="Chicago">Chicago</option>
+        <option value="San Francisco">San Francisco</option>
+        <option value="Miami">Miami</option>
+      </select>
 
-.container {
-  width: 90%;
-  max-width: 1100px;
-  margin: auto;
-  padding: 20px;
-}
+      <label for="to">To:</label>
+      <select id="to" required>
+        <option value="">Select destination city</option>
+        <option value="New York">New York</option>
+        <option value="Chicago">Chicago</option>
+        <option value="San Francisco">San Francisco</option>
+        <option value="Miami">Miami</option>
+      </select>
 
-header {
-  background: #004e89;
-  color: #fff;
-  padding: 20px 0;
-}
+      <label for="date">Date of Journey:</label>
+      <input type="date" id="date" required min="" />
 
-header h1 {
-  float: left;
-  margin-left: 10px;
-}
+      <label for="tickets">Number of Tickets:</label>
+      <input type="number" id="tickets" min="1" max="10" value="1" required />
 
-header nav {
-  float: right;
-  margin-top: 10px;
-}
+      <button type="submit">Book Now</button>
+    </form>
 
-header nav a {
-  color: #fff;
-  margin-left: 20px;
-  text-decoration: none;
-  font-weight: bold;
-}
+    <div id="message" class="message"></div>
+  </div>
 
-.hero {
-  background: #0096c7;
-  color: white;
-  text-align: center;
-  padding: 60px 20px;
-}
+  <script>
+    const form = document.getElementById('bookingForm');
+    const message = document.getElementById('message');
+    const dateInput = document.getElementById('date');
 
-.hero h2 {
-  font-size: 2.5rem;
-  margin-bottom: 10px;
-}
+    // Set minimum date to today
+    const today = new Date().toISOString().split('T')[0];
+    dateInput.min = today;
 
-.hero p {
-  font-size: 1.2rem;
-  margin-bottom: 20px;
-}
+    form.addEventListener('submit', function(event) {
+      event.preventDefault();
 
-.btn {
-  display: inline-block;
-  background: #023e8a;
-  color: white;
-  padding: 10px 20px;
-  text-decoration: none;
-  border-radius: 5px;
-}
+      const from = document.getElementById('from').value;
+      const to = document.getElementById('to').value;
+      const date = document.getElementById('date').value;
+      const tickets = parseInt(document.getElementById('tickets').value, 10);
 
-.booking-form {
-  background: white;
-  padding: 40px 20px;
-  margin-top: 30px;
-}
+      // Validation checks
+      if (from === "") {
+        showMessage("Please select a departure city.", "error");
+        return;
+      }
+      if (to === "") {
+        showMessage("Please select a destination city.", "error");
+        return;
+      }
+      if (from === to) {
+        showMessage("Departure and destination cities cannot be the same.", "error");
+        return;
+      }
+      if (date === "") {
+        showMessage("Please select a journey date.", "error");
+        return;
+      }
+      if (new Date(date) < new Date(today)) {
+        showMessage("Journey date cannot be in the past.", "error");
+        return;
+      }
+      if (isNaN(tickets) || tickets < 1 || tickets > 10) {
+        showMessage("Please enter a valid number of tickets (1-10).", "error");
+        return;
+      }
 
-.booking-form form {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
+      // Successful booking message
+      showMessage(`Success! You have booked ${tickets} ticket(s) from ${from} to ${to} on ${date}.`, "success");
 
-.booking-form input,
-.booking-form button {
-  padding: 10px;
-  font-size: 1rem;
-}
+      // Optionally, reset the form
+      form.reset();
+      dateInput.min = today; // reset min date
+    });
 
-.booking-form button {
-  background: #0077b6;
-  color: white;
-  border: none;
-  cursor: pointer;
-}
+    function showMessage(msg, type) {
+      message.textContent = msg;
+      message.className = "message " + type;
+      message.style.display = "block";
+    }
+  </script>
 
-.features {
-  background: #caf0f8;
-  padding: 40px 20px;
-}
-
-.features ul {
-  list-style: none;
-  padding-left: 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 10px;
-  font-size: 1.1rem;
-}
-
-footer {
-  background: #03045e;
-  color: white;
-  text-align: center;
-  padding: 20px;
-  margin-top: 30px;
-}
+</body>
+</html>
